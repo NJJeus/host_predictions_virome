@@ -1,0 +1,7 @@
+name: progidal
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - prodigal
