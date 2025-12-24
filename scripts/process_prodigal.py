@@ -16,7 +16,7 @@ def process_prodigal_gff(input_file, output_file, min_length_bp):
     sequences = []
     
     # 1. Get the basename of the input file for the 'Name' column
-    file_basename = os.path.basename(input_file)
+    file_basename, _ = os.path.splitext(os.path.basename(input_file))
     
     with open(input_file, 'r') as f:
         for line in f:
@@ -70,9 +70,12 @@ def process_prodigal_gff(input_file, output_file, min_length_bp):
                     # Skip if strand information is missing or unexpected
                     continue
                 
+                sample = '_'.join(seqid.split('_')[:2])
+                if sample == seqid:
+                    sample = ''
                 # 5. Append the results
                 sequences.append({
-                    'Name': file_basename,
+                    'Name': sample + '_' + file_basename,
                     'SequenceID': seqid,
                     'CodingStart': coding_start,
                     'CodingStop': coding_stop

@@ -13,7 +13,8 @@ ALL_SAMPLES = SAMPLES + SAMPLES_FA
 
 rule all:
     input:
-        expand(os.path.join(OUTPUT_BASE_DIR, "PREDICTIONS/{sample}.predictions.csv"), sample=ALL_SAMPLES)
+        #expand(os.path.join(OUTPUT_BASE_DIR, "PREDICTIONS/{sample}.predictions.csv"), sample=ALL_SAMPLES)
+        "OUTPUTS_TEST/all_predictions.csv"
 
 rule install_zoontic_rank:
     output:
@@ -45,13 +46,13 @@ rule process_gff:
     output:
         csv = os.path.join(OUTPUT_BASE_DIR, "GFF/{sample}.csv")
     shell:
-        "python process_prodigal.py {input.gff} {output.csv}"
+        "python scripts/process_prodigal.py {input.gff} {output.csv}"
 
 
 
 rule zoonotic_ranking:
     input:
-        tool = rules.install_zoontic_rank.output
+        tool = rules.install_zoontic_rank.output,
         fasta = lambda wildcards: os.path.join(INPUT_DIR, wildcards.sample + (".fasta" if wildcards.sample in SAMPLES else ".fa")),
         csv = os.path.join(OUTPUT_BASE_DIR, "GFF/{sample}.csv")
     output:
@@ -69,3 +70,17 @@ rule zoonotic_ranking:
             ../{input.csv} \
             ../{params.out_dir}
         """
+
+rule summarize_predictions:
+    input:
+        expand(os.path.join(OUTPUT_BASE_DIR, "PREDICTIONS/{sample}.predictions.csv"), sample=ALL_SAMPLES)
+    output:
+        "OUTPUTS_TEST/all_predictions.csv"
+    shell:
+        """
+        python scripts/concatenate_results.py -f {input} -o {output}
+        """
+
+
+
+
